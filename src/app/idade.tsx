@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 
-const API_URL = "http://192.168.100.5:5000";
+const API_URL = "http://192.168.100.4:5000";
 
 const FAIXAS = ["13-17", "18-24", "25-34", "35-44", "45+"];
 
