@@ -74,7 +74,7 @@ export default function Resultado() {
 
         <TouchableOpacity
           style={styles.botao}
-          onPress={() => router.replace("/")}
+          onPress={() => router.replace("/(tabs)")}
         >
           <Text style={styles.textoBotao}>Concluir</Text>
         </TouchableOpacity>

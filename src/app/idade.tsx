@@ -33,7 +33,7 @@ export default function Idade() {
         body: JSON.stringify({ uuid, faixa_etaria: selecionada }),
       });
 
-      router.push("/phq9");
+      router.push("/(tabs)");
     } catch (erro) {
       alert("Não foi possível ligar ao servidor. Verifica a tua ligação.");
       console.error(erro);

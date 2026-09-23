@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { obterRespostasPHQ9, guardarRespostasGAD7 } from "../store/avaliacaoStore";
@@ -46,7 +46,6 @@ export default function GAD7() {
       return;
     }
 
-    // Última pergunta respondida -> submeter tudo ao backend
     guardarRespostasGAD7(respostas);
     setAEnviar(true);
 
@@ -93,9 +92,26 @@ export default function GAD7() {
     if (indice > 0) setIndice(indice - 1);
   }
 
+  function sair() {
+    Alert.alert(
+      "Sair da avaliação?",
+      "As tuas respostas até agora serão perdidas.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Sair", style: "destructive", onPress: () => router.replace("/(tabs)") },
+      ]
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.conteudo}>
+        {!aEnviar && (
+          <TouchableOpacity onPress={sair} style={styles.botaoSair}>
+            <Text style={styles.textoSair}>✕ Sair</Text>
+          </TouchableOpacity>
+        )}
+
         <Text style={styles.progresso}>
           Pergunta {indice + 1} de {PERGUNTAS.length}
         </Text>
@@ -155,6 +171,14 @@ export default function GAD7() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F5F7FA" },
   conteudo: { flex: 1, padding: 24, justifyContent: "center" },
+  botaoSair: {
+    alignSelf: "flex-end",
+    marginBottom: 8,
+  },
+  textoSair: {
+    color: "#6B7280",
+    fontSize: 14,
+  },
   progresso: {
     fontSize: 14,
     color: "#6B7280",
