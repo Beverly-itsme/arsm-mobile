@@ -50,6 +50,14 @@ export default function Teste() {
           </View>
         ))}
       </View>
+      <TouchableOpacity style={styles.cartaoRespirar} onPress={() => router.push("/respirar")}>
+  <Ionicons name="leaf-outline" size={22} color={CORES.azul} />
+  <View style={{ flex: 1 }}>
+    <Text style={styles.tituloRespirar}>Respirar</Text>
+    <Text style={styles.textoRespirar}>Um exercício de respiração calma</Text>
+  </View>
+  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+</TouchableOpacity>
 
       <View style={styles.secaoExtra}>
         <Text style={styles.tituloExtra}>Porque fazer o rastreio?</Text>
@@ -140,4 +148,18 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     lineHeight: 19,
   },
+  cartaoRespirar: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 12,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 16,
+  padding: 16,
+  borderWidth: 1,
+  borderColor: "#EEEEEE",
+  marginTop: 24,
+  marginHorizontal: 20,
+},
+tituloRespirar: { fontSize: 15, fontWeight: "700", color: CORES.textoEscuro },
+textoRespirar: { fontSize: 12, color: "#6B7280", marginTop: 2 },
 });
