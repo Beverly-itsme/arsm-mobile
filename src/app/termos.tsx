@@ -1,75 +1,99 @@
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { CORES, FUNDO_GRADIENTE } from "../constants/cores";
 
-export default function Consentimento() {
+
+const PONTOS = [
+  {
+    icon: "lock-closed-outline" as const,
+    texto: "As tuas respostas são anónimas",
+    cor: CORES.azul,
+  },
+  {
+    icon: "chatbubbles-outline" as const,
+    texto: "Não substituímos um profissional de saúde",
+    cor: CORES.verde,
+  },
+  {
+    icon: "checkmark-circle-outline" as const,
+    texto: "Podes parar quando quiseres",
+    cor: CORES.coral,
+  },
+];
+
+export default function Termos() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.conteudo}>
-        <Text style={styles.titulo}>Bem-vindo(a) ao ARSM</Text>
+    <LinearGradient colors={FUNDO_GRADIENTE} style={styles.gradiente}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.titulo}>Antes de começares</Text>
 
-        <Text style={styles.texto}>
-          Esta aplicação ajuda-te a fazer uma autoavaliação de sinais de
-          depressão e ansiedade, com base em questionários usados
-          internacionalmente.
-        </Text>
+          {PONTOS.map((ponto, i) => (
+            <View key={i} style={styles.linha}>
+              <View style={[styles.iconeCirculo, { backgroundColor: ponto.cor + "22" }]}>
+                <Ionicons name={ponto.icon} size={24} color={ponto.cor} />
+              </View>
+              <Text style={styles.textoLinha}>{ponto.texto}</Text>
+            </View>
+          ))}
 
-        <Text style={styles.texto}>
-          Não pedimos o teu nome, número de telefone ou email. As tuas
-          respostas são guardadas de forma anónima, apenas para fins de
-          investigação académica.
-        </Text>
-
-        <Text style={styles.texto}>
-          Esta aplicação não substitui uma avaliação feita por um
-          profissional de saúde. É apenas uma ferramenta de rastreio.
-        </Text>
-
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => router.push("/idade")}
-        >
-          <Text style={styles.textoBotao}>Concordo e quero continuar</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <TouchableOpacity style={styles.botao} onPress={() => router.push("/idade")}>
+            <Text style={styles.textoBotao}>Concordo e quero continuar</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5F7FA",
-  },
-  conteudo: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
+  gradiente: { flex: 1 },
+  container: { flex: 1, justifyContent: "center", padding: 24 },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 28,
   },
   titulo: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 24,
-    color: "#1A1A2E",
+    color: CORES.textoEscuro,
     textAlign: "center",
+    marginBottom: 28,
   },
-  texto: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#3A3A3A",
-    marginBottom: 16,
+  linha: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  iconeCirculo: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  textoLinha: {
+    flex: 1,
+    fontSize: 15,
+    color: CORES.textoEscuro,
+    lineHeight: 21,
   },
   botao: {
-    backgroundColor: "#4A6FA5",
+    backgroundColor: CORES.azul,
     paddingVertical: 16,
-    borderRadius: 12,
-    marginTop: 24,
+    borderRadius: 30,
+    marginTop: 12,
   },
   textoBotao: {
     color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     textAlign: "center",
   },
 });

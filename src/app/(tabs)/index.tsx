@@ -1,17 +1,36 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CORES } from "../../constants/cores";
+
+const INFO = [
+  { icon: "time-outline" as const, texto: "3-5 minutos" },
+  { icon: "list-outline" as const, texto: "16 perguntas" },
+  { icon: "shield-checkmark-outline" as const, texto: "100% anónimo" },
+];
 
 export default function Teste() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.conteudo}>
-        <Text style={styles.emoji}>📝</Text>
-        <Text style={styles.titulo}>Pronto para começar?</Text>
-        <Text style={styles.texto}>
-          A avaliação tem 16 perguntas simples e demora cerca de 3 a 5
-          minutos. As tuas respostas são sempre anónimas.
+    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
+      <View style={styles.cabecalho}>
+        <Text style={styles.saudacao}>Olá</Text>
+        <Text style={styles.subSaudacao}>Como te sentes hoje?</Text>
+      </View>
+
+      <LinearGradient colors={[CORES.pessego, CORES.coral]} style={styles.cartaoTopo}>
+        <View style={styles.iconeCirculo}>
+          <Ionicons name="clipboard-outline" size={32} color="#FFFFFF" />
+        </View>
+
+        <Text style={styles.tituloTopo}>Rastreio de saúde mental</Text>
+        <Text style={styles.textoTopo}>
+          Um momento tranquilo para perceberes como tens estado depressão
+          e ansiedade, de forma simples e privada.
         </Text>
 
         <TouchableOpacity
@@ -19,39 +38,106 @@ export default function Teste() {
           onPress={() => router.push("/phq9")}
         >
           <Text style={styles.textoBotao}>Iniciar avaliação</Text>
+          <Ionicons name="arrow-forward" size={18} color={CORES.coral} />
         </TouchableOpacity>
+      </LinearGradient>
+
+      <View style={styles.linhaInfo}>
+        {INFO.map((item, i) => (
+          <View key={i} style={styles.itemInfo}>
+            <Ionicons name={item.icon} size={20} color={CORES.azul} />
+            <Text style={styles.textoInfo}>{item.texto}</Text>
+          </View>
+        ))}
       </View>
-    </SafeAreaView>
+
+      <View style={styles.secaoExtra}>
+        <Text style={styles.tituloExtra}>Porque fazer o rastreio?</Text>
+        <Text style={styles.textoExtra}>
+          Reconhecer sinais precocemente é o primeiro passo para cuidares
+          de ti. Este rastreio não substitui uma avaliação profissional,
+          mas pode ajudar-te a perceber quando pedir apoio.
+        </Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F7FA" },
-  conteudo: { flex: 1, padding: 24, justifyContent: "center", alignItems: "center" },
-  emoji: { fontSize: 56, marginBottom: 16 },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1A1A2E",
-    textAlign: "center",
-    marginBottom: 12,
+  container: { flex: 1, backgroundColor: "#FAFAF8" },
+  cabecalho: { paddingHorizontal: 20, marginBottom: 16 },
+  saudacao: { fontSize: 22, fontWeight: "bold", color: CORES.textoEscuro },
+  subSaudacao: { fontSize: 14, color: "#6B7280", marginTop: 2 },
+  cartaoTopo: {
+    marginHorizontal: 20,
+    borderRadius: 24,
+    padding: 28,
+    alignItems: "center",
   },
-  texto: {
-    fontSize: 15,
-    color: "#6B7280",
+  iconeCirculo: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  tituloTopo: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: CORES.textoEscuro,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 32,
+    marginBottom: 8,
+  },
+  textoTopo: {
+    fontSize: 14,
+    color: CORES.textoEscuro,
+    textAlign: "center",
+    lineHeight: 20,
+    opacity: 0.85,
+    marginBottom: 22,
   },
   botao: {
-    backgroundColor: "#4A6FA5",
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 30,
   },
   textoBotao: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "600",
+    color: CORES.coral,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  linhaInfo: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 24,
+    marginHorizontal: 20,
+  },
+  itemInfo: { alignItems: "center", gap: 6 },
+  textoInfo: { fontSize: 12, color: "#6B7280" },
+  secaoExtra: {
+    marginTop: 32,
+    marginHorizontal: 20,
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
+  },
+  tituloExtra: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: CORES.textoEscuro,
+    marginBottom: 8,
+  },
+  textoExtra: {
+    fontSize: 13,
+    color: "#6B7280",
+    lineHeight: 19,
   },
 });

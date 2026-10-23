@@ -1,10 +1,13 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { CORES } from "../constants/cores";
 
 const CORES_RISCO: Record<string, string> = {
   "mínimo": "#4CAF7D",
   "leve": "#8BC34A",
-  "moderado": "#F5A623",
+  "moderado": CORES.coral,
   "moderadamente severo": "#E8743B",
   "severo": "#D64545",
 };
@@ -17,6 +20,7 @@ const RECURSOS_PADRAO = [
 
 export default function Resultado() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
 
   const pontuacaoPHQ9 = params.pontuacao_phq9;
@@ -29,13 +33,16 @@ export default function Resultado() {
   const corGAD7 = CORES_RISCO[categoriaGAD7] || "#6B7280";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <ScrollView contentContainerStyle={styles.conteudo}>
         <Text style={styles.titulo}>O teu resultado</Text>
 
         {riscoUrgente && (
           <View style={styles.avisoUrgente}>
-            <Text style={styles.tituloUrgente}>Importante</Text>
+            <View style={styles.linhaAvisoTitulo}>
+              <Ionicons name="alert-circle" size={20} color="#D64545" />
+              <Text style={styles.tituloUrgente}>Importante</Text>
+            </View>
             <Text style={styles.textoUrgente}>
               Notámos que mencionaste ter tido pensamentos de fazer mal a
               ti mesmo(a). Não estás sozinho(a), e existe ajuda disponível.
@@ -45,127 +52,112 @@ export default function Resultado() {
           </View>
         )}
 
-        <View style={[styles.cartao, { borderColor: corPHQ9 }]}>
-          <Text style={styles.rotulo}>Depressão (PHQ-9)</Text>
-          <Text style={styles.pontuacao}>{pontuacaoPHQ9} / 27</Text>
-          <Text style={[styles.categoria, { color: corPHQ9 }]}>
-            {categoriaPHQ9}
+        <View style={styles.linhaResultados}>
+          <View style={[styles.cartaoResultado, { borderColor: corPHQ9 }]}>
+            <Text style={styles.rotulo}>Depressão</Text>
+            <Text style={styles.subrotulo}>PHQ-9</Text>
+            <Text style={styles.pontuacao}>{pontuacaoPHQ9}<Text style={styles.pontuacaoMax}>/27</Text></Text>
+            <View style={[styles.pilulaCategoria, { backgroundColor: corPHQ9 + "20" }]}>
+              <Text style={[styles.textoCategoria, { color: corPHQ9 }]}>{categoriaPHQ9}</Text>
+            </View>
+          </View>
+
+          <View style={[styles.cartaoResultado, { borderColor: corGAD7 }]}>
+            <Text style={styles.rotulo}>Ansiedade</Text>
+            <Text style={styles.subrotulo}>GAD-7</Text>
+            <Text style={styles.pontuacao}>{pontuacaoGAD7}<Text style={styles.pontuacaoMax}>/21</Text></Text>
+            <View style={[styles.pilulaCategoria, { backgroundColor: corGAD7 + "20" }]}>
+              <Text style={[styles.textoCategoria, { color: corGAD7 }]}>{categoriaGAD7}</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.secaoRecursos}>
+          <Text style={styles.subtitulo}>O que podes fazer agora</Text>
+          {RECURSOS_PADRAO.map((recurso, i) => (
+            <View key={i} style={styles.linhaRecurso}>
+              <View style={styles.bolinhaRecurso} />
+              <Text style={styles.recurso}>{recurso}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.avisoLegal}>
+          <Ionicons name="information-circle-outline" size={16} color="#9CA3AF" />
+          <Text style={styles.aviso}>
+            Este resultado é apenas uma indicação de rastreio, não um
+            diagnóstico. Só um profissional de saúde pode fazer uma
+            avaliação clínica completa.
           </Text>
         </View>
 
-        <View style={[styles.cartao, { borderColor: corGAD7 }]}>
-          <Text style={styles.rotulo}>Ansiedade (GAD-7)</Text>
-          <Text style={styles.pontuacao}>{pontuacaoGAD7} / 21</Text>
-          <Text style={[styles.categoria, { color: corGAD7 }]}>
-            {categoriaGAD7}
-          </Text>
-        </View>
-
-        <Text style={styles.subtitulo}>O que podes fazer agora</Text>
-        {RECURSOS_PADRAO.map((recurso, i) => (
-          <Text key={i} style={styles.recurso}>• {recurso}</Text>
-        ))}
-
-        <Text style={styles.aviso}>
-          Este resultado é apenas uma indicação de rastreio, não um
-          diagnóstico. Só um profissional de saúde pode fazer uma avaliação
-          clínica completa.
-        </Text>
-
-        <TouchableOpacity
-          style={styles.botao}
-          onPress={() => router.replace("/(tabs)")}
-        >
+        <TouchableOpacity style={styles.botao} onPress={() => router.replace("/(tabs)")}>
           <Text style={styles.textoBotao}>Concluir</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F7FA" },
-  conteudo: { padding: 24, paddingBottom: 48 },
+  container: { flex: 1, backgroundColor: "#FAFAF8" },
+  conteudo: { padding: 20, paddingBottom: 40 },
   titulo: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#1A1A2E",
+    color: CORES.textoEscuro,
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 20,
   },
   avisoUrgente: {
     backgroundColor: "#FDECEC",
     borderWidth: 1,
-    borderColor: "#D64545",
-    borderRadius: 12,
+    borderColor: "#F2C4C4",
+    borderRadius: 16,
     padding: 16,
     marginBottom: 20,
   },
-  tituloUrgente: {
-    fontWeight: "bold",
-    color: "#D64545",
-    marginBottom: 6,
-    fontSize: 16,
-  },
-  textoUrgente: {
-    color: "#3A3A3A",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  cartao: {
+  linhaAvisoTitulo: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 6 },
+  tituloUrgente: { fontWeight: "700", color: "#D64545", fontSize: 15 },
+  textoUrgente: { color: "#3A3A3A", fontSize: 13, lineHeight: 19 },
+  linhaResultados: { flexDirection: "row", gap: 12, marginBottom: 20 },
+  cartaoResultado: {
+    flex: 1,
     borderWidth: 2,
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 18,
+    padding: 16,
     alignItems: "center",
     backgroundColor: "#FFFFFF",
   },
-  rotulo: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginBottom: 8,
+  rotulo: { fontSize: 13, fontWeight: "600", color: CORES.textoEscuro },
+  subrotulo: { fontSize: 11, color: "#9CA3AF", marginBottom: 10 },
+  pontuacao: { fontSize: 30, fontWeight: "bold", color: CORES.textoEscuro },
+  pontuacaoMax: { fontSize: 15, fontWeight: "400", color: "#9CA3AF" },
+  pilulaCategoria: { marginTop: 10, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 20 },
+  textoCategoria: { fontSize: 11, fontWeight: "700", textTransform: "capitalize" },
+  secaoRecursos: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
   },
-  pontuacao: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1A1A2E",
-  },
-  categoria: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 4,
-    textTransform: "capitalize",
-  },
-  subtitulo: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1A1A2E",
-    marginTop: 12,
-    marginBottom: 12,
-  },
-  recurso: {
-    fontSize: 15,
-    color: "#3A3A3A",
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  aviso: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginTop: 20,
-    marginBottom: 24,
-    fontStyle: "italic",
-    lineHeight: 18,
-  },
+  subtitulo: { fontSize: 16, fontWeight: "700", color: CORES.textoEscuro, marginBottom: 14 },
+  linhaRecurso: { flexDirection: "row", alignItems: "flex-start", marginBottom: 12, gap: 10 },
+  bolinhaRecurso: { width: 6, height: 6, borderRadius: 3, backgroundColor: CORES.azul, marginTop: 7 },
+  recurso: { flex: 1, fontSize: 14, color: CORES.textoEscuro, lineHeight: 20 },
+  avisoLegal: { flexDirection: "row", gap: 8, marginBottom: 24, paddingHorizontal: 4 },
+  aviso: { flex: 1, fontSize: 12, color: "#9CA3AF", lineHeight: 17, fontStyle: "italic" },
   botao: {
-    backgroundColor: "#4A6FA5",
+    backgroundColor: CORES.azul,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 30,
   },
   textoBotao: {
     color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     textAlign: "center",
   },
 });

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
+import { CORES, FUNDO_GRADIENTE } from "../constants/cores";
 
 const API_URL = "http://192.168.100.4:5000";
-
 const FAIXAS = ["13-17", "18-24", "25-34", "35-44", "45+"];
 
 export default function Idade() {
@@ -19,14 +20,12 @@ export default function Idade() {
     setACarregar(true);
 
     try {
-      // Verifica se já existe um UUID guardado neste telemóvel
       let uuid = await AsyncStorage.getItem("arsm_uuid");
       if (!uuid) {
         uuid = uuidv4();
         await AsyncStorage.setItem("arsm_uuid", uuid);
       }
 
-      // Regista o utilizador no backend
       await fetch(`${API_URL}/api/utilizador`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,89 +42,96 @@ export default function Idade() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.conteudo}>
-        <Text style={styles.titulo}>Qual é a tua faixa etária?</Text>
+    <LinearGradient colors={FUNDO_GRADIENTE} style={styles.gradiente}>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.titulo}>Qual é a tua faixa etária?</Text>
 
-        {FAIXAS.map((faixa) => (
-          <TouchableOpacity
-            key={faixa}
-            style={[
-              styles.opcao,
-              selecionada === faixa && styles.opcaoSelecionada,
-            ]}
-            onPress={() => setSelecionada(faixa)}
-          >
-            <Text
+          {FAIXAS.map((faixa) => (
+            <TouchableOpacity
+              key={faixa}
               style={[
-                styles.textoOpcao,
-                selecionada === faixa && styles.textoOpcaoSelecionada,
+                styles.opcao,
+                selecionada === faixa && styles.opcaoSelecionada,
               ]}
+              onPress={() => setSelecionada(faixa)}
             >
-              {faixa} anos
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.textoOpcao,
+                  selecionada === faixa && styles.textoOpcaoSelecionada,
+                ]}
+              >
+                {faixa} anos
+              </Text>
+            </TouchableOpacity>
+          ))}
 
-        <TouchableOpacity
-          style={[styles.botao, !selecionada && styles.botaoDesativado]}
-          onPress={continuar}
-          disabled={!selecionada || aCarregar}
-        >
-          {aCarregar ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.textoBotao}>Continuar</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <TouchableOpacity
+            style={[styles.botao, !selecionada && styles.botaoDesativado]}
+            onPress={continuar}
+            disabled={!selecionada || aCarregar}
+          >
+            {aCarregar ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.textoBotao}>Continuar</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F7FA" },
-  conteudo: { flex: 1, padding: 24, justifyContent: "center" },
+  gradiente: { flex: 1 },
+  container: { flex: 1, justifyContent: "center", padding: 24 },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 28,
+  },
   titulo: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 32,
-    color: "#1A1A2E",
+    marginBottom: 24,
+    color: CORES.textoEscuro,
     textAlign: "center",
   },
   opcao: {
     borderWidth: 2,
-    borderColor: "#D0D5DD",
-    borderRadius: 12,
+    borderColor: "#E5E7EB",
+    borderRadius: 16,
     padding: 16,
     marginBottom: 12,
   },
   opcaoSelecionada: {
-    borderColor: "#4A6FA5",
-    backgroundColor: "#E8EEF7",
+    borderColor: CORES.azul,
+    backgroundColor: CORES.azul + "15",
   },
   textoOpcao: {
     fontSize: 16,
-    color: "#3A3A3A",
+    color: CORES.textoEscuro,
     textAlign: "center",
   },
   textoOpcaoSelecionada: {
-    color: "#4A6FA5",
-    fontWeight: "600",
+    color: CORES.azul,
+    fontWeight: "700",
   },
   botao: {
-    backgroundColor: "#4A6FA5",
+    backgroundColor: CORES.azul,
     paddingVertical: 16,
-    borderRadius: 12,
-    marginTop: 24,
+    borderRadius: 30,
+    marginTop: 16,
   },
   botaoDesativado: {
-    backgroundColor: "#B0B8C4",
+    backgroundColor: "#C4CCD6",
   },
   textoBotao: {
     color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
     textAlign: "center",
   },
 });

@@ -1,16 +1,27 @@
 import { useState, useCallback } from "react";
-import { View, Text, StyleSheet, SafeAreaView, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useFocusEffect } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CORES } from "../../constants/cores";
 
 const API_URL = "http://192.168.100.4:5000";
 
 const CORES_RISCO: Record<string, string> = {
   "mínimo": "#4CAF7D",
   "leve": "#8BC34A",
-  "moderado": "#F5A623",
+  "moderado": CORES.coral,
   "moderadamente severo": "#E8743B",
   "severo": "#D64545",
+};
+
+const NIVEL_RISCO: Record<string, number> = {
+  "mínimo": 0,
+  "leve": 1,
+  "moderado": 2,
+  "moderadamente severo": 3,
+  "severo": 4,
 };
 
 type Avaliacao = {
@@ -23,10 +34,10 @@ type Avaliacao = {
 };
 
 export default function Historico() {
+  const insets = useSafeAreaInsets();
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [aCarregar, setACarregar] = useState(true);
 
-  // useFocusEffect: recarrega sempre que a aba fica visível (ex: depois de um novo teste)
   useFocusEffect(
     useCallback(() => {
       carregarHistorico();
@@ -43,7 +54,7 @@ export default function Historico() {
       }
       const resposta = await fetch(`${API_URL}/api/utilizador/${uuid}/historico`);
       const dados = await resposta.json();
-      setAvaliacoes(dados.reverse()); // mais recente primeiro
+      setAvaliacoes(dados.reverse());
     } catch (erro) {
       console.error(erro);
     } finally {
@@ -58,80 +69,121 @@ export default function Historico() {
 
   if (aCarregar) {
     return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator style={{ marginTop: 40 }} color="#4A6FA5" />
-      </SafeAreaView>
+      <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
+        <ActivityIndicator style={{ marginTop: 40 }} color={CORES.azul} />
+      </View>
     );
   }
 
   if (avaliacoes.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
+        <Text style={styles.titulo}>O teu histórico</Text>
         <View style={styles.vazio}>
+          <View style={styles.iconeVazio}>
+            <Ionicons name="time-outline" size={36} color={CORES.azul} />
+          </View>
           <Text style={styles.tituloVazio}>Ainda sem avaliações</Text>
           <Text style={styles.textoVazio}>
             Quando fizeres a tua primeira avaliação, ela vai aparecer aqui.
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <Text style={styles.titulo}>O teu histórico</Text>
       <FlatList
         data={avaliacoes}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.lista}
-        renderItem={({ item }) => (
-          <View style={styles.cartao}>
-            <Text style={styles.data}>{formatarData(item.data_hora)}</Text>
-            <View style={styles.linha}>
-              <View style={styles.metade}>
+        renderItem={({ item }) => {
+          const corPHQ9 = CORES_RISCO[item.categoria_risco_phq9];
+          const corGAD7 = CORES_RISCO[item.categoria_risco_gad7];
+          const corPrincipal =
+            NIVEL_RISCO[item.categoria_risco_phq9] >= NIVEL_RISCO[item.categoria_risco_gad7]
+              ? corPHQ9
+              : corGAD7;
+
+          return (
+            <View style={styles.cartao}>
+              <Text style={styles.data}>{formatarData(item.data_hora)}</Text>
+
+              <View style={styles.linhaResultado}>
                 <Text style={styles.rotulo}>Depressão</Text>
-                <Text style={[styles.valor, { color: CORES_RISCO[item.categoria_risco_phq9] }]}>
-                  {item.pontuacao_phq9}/27 · {item.categoria_risco_phq9}
-                </Text>
+                <View style={[styles.pilula, { backgroundColor: corPHQ9 + "20" }]}>
+                  <View style={[styles.bolinha, { backgroundColor: corPHQ9 }]} />
+                  <Text style={[styles.textoPilula, { color: corPHQ9 }]}>
+                    {item.pontuacao_phq9}/27 · {item.categoria_risco_phq9}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.metade}>
+
+              <View style={styles.linhaResultado}>
                 <Text style={styles.rotulo}>Ansiedade</Text>
-                <Text style={[styles.valor, { color: CORES_RISCO[item.categoria_risco_gad7] }]}>
-                  {item.pontuacao_gad7}/21 · {item.categoria_risco_gad7}
-                </Text>
+                <View style={[styles.pilula, { backgroundColor: corGAD7 + "20" }]}>
+                  <View style={[styles.bolinha, { backgroundColor: corGAD7 }]} />
+                  <Text style={[styles.textoPilula, { color: corGAD7 }]}>
+                    {item.pontuacao_gad7}/21 · {item.categoria_risco_gad7}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        )}
+          );
+        }}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F5F7FA" },
+  container: { flex: 1, backgroundColor: "#FAFAF8" },
   titulo: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#1A1A2E",
-    padding: 20,
-    paddingBottom: 8,
+    color: CORES.textoEscuro,
+    paddingHorizontal: 20,
+    marginBottom: 16,
   },
-  lista: { padding: 20, paddingTop: 8 },
+  lista: { paddingHorizontal: 20, paddingBottom: 20 },
   cartao: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+  backgroundColor: "#FFFFFF",
+  borderRadius: 16,
+  padding: 16,
+  marginBottom: 12,
+  borderWidth: 1,
+  borderColor: "#EEEEEE",
+},
+  data: { fontSize: 12, color: "#9CA3AF", marginBottom: 12 },
+  linhaResultado: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
-  data: { fontSize: 13, color: "#9CA3AF", marginBottom: 8 },
-  linha: { flexDirection: "row" },
-  metade: { flex: 1 },
-  rotulo: { fontSize: 13, color: "#6B7280", marginBottom: 2 },
-  valor: { fontSize: 14, fontWeight: "600" },
+  rotulo: { fontSize: 13, color: "#6B7280", fontWeight: "500" },
+  pilula: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+  },
+  bolinha: { width: 6, height: 6, borderRadius: 3 },
+  textoPilula: { fontSize: 12, fontWeight: "700" },
   vazio: { flex: 1, justifyContent: "center", alignItems: "center", padding: 32 },
-  tituloVazio: { fontSize: 18, fontWeight: "600", color: "#1A1A2E", marginBottom: 8 },
+  iconeVazio: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: CORES.azul + "15",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  tituloVazio: { fontSize: 17, fontWeight: "700", color: CORES.textoEscuro, marginBottom: 6 },
   textoVazio: { fontSize: 14, color: "#6B7280", textAlign: "center" },
 });

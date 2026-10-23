@@ -1,21 +1,22 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { CORES } from "../../constants/cores";
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A6FA5",
+        tabBarActiveTintColor: CORES.azul,
         tabBarInactiveTintColor: "#9CA3AF",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Teste",
+          title: "Início",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="clipboard-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -35,6 +36,21 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart-outline" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="apoio"
+        options={{
+          title: "Apoio",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="help-buoy-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="educacao/[id]"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

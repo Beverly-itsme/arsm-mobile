@@ -1,57 +1,151 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CORES, FUNDO_GRADIENTE } from "../constants/cores";
+import { FRASES } from "../constants/frases";
+import Manchas from "../components/Manchas";
+
+const CHAVE_ULTIMA_FRASE = "arsm_ultima_frase";
 
 export default function BoasVindas() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const [indice, setIndice] = useState<number | null>(null);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function escolherFrase() {
+      let ultimo = -1;
+      try {
+        const guardado = await AsyncStorage.getItem(CHAVE_ULTIMA_FRASE);
+        if (guardado !== null) ultimo = parseInt(guardado, 10);
+      } catch {}
+
+      let novo = Math.floor(Math.random() * FRASES.length);
+      if (FRASES.length > 1 && novo === ultimo) {
+        novo = (novo + 1) % FRASES.length;
+      }
+
+      if (ativo) setIndice(novo);
+
+      try {
+        await AsyncStorage.setItem(CHAVE_ULTIMA_FRASE, String(novo));
+      } catch {}
+    }
+
+    escolherFrase();
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  const frase = FRASES[indice ?? 0];
+  const tamanhoTitulo = Math.min(48, Math.round(width * 0.105));
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.conteudo}>
-        <Text style={styles.emoji}>🌱</Text>
-        <Text style={styles.titulo}>Bem-vindo(a) ao ARSM</Text>
-        <Text style={styles.subtitulo}>
-          Um espaço privado e acolhedor para cuidares da tua saúde mental,
-          ao teu ritmo.
-        </Text>
+    <LinearGradient colors={FUNDO_GRADIENTE} style={styles.gradiente}>
+      <Manchas />
+
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 24 },
+        ]}
+      >
+        <View style={styles.topo}>
+  <Image source={require("../assets/arsm-logo-branco.png")} style={styles.logo} />
+  <Image source={require("../assets/laco.webp")} style={styles.laco} />
+   
+</View>
+
+        <View style={[styles.meio, { opacity: indice === null ? 0 : 1 }]}>
+          <Text
+            style={[
+              styles.titulo,
+              {
+                fontSize: tamanhoTitulo,
+                lineHeight: Math.round(tamanhoTitulo * 1.3),
+                letterSpacing: Math.round(width * 0.008),
+              },
+            ]}
+          >
+            {frase.linhas.join("\n")}
+          </Text>
+          <Text style={styles.descricao}>{frase.descricao}</Text>
+        </View>
 
         <TouchableOpacity
           style={styles.botao}
+          activeOpacity={0.85}
           onPress={() => router.push("/termos")}
         >
-          <Text style={styles.textoBotao}>Começar</Text>
+          <Text style={styles.textoBotao}>COMEÇAR</Text>
+          <View style={styles.setaCirculo}>
+            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+          </View>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#E8EEF7" },
-  conteudo: { flex: 1, padding: 24, justifyContent: "center", alignItems: "center" },
-  emoji: { fontSize: 64, marginBottom: 16 },
+  gradiente: { flex: 1 },
+  container: { flex: 1, paddingHorizontal: 24 },
+  topo: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  logo: { width: 80, aspectRatio: 1.625, marginLeft: -10, marginTop: -8, resizeMode: "contain" },
+  laco: { width: 30, height: 60, marginTop: -8, marginRight: -4, resizeMode: "contain" },
+  meio: { flex: 1, justifyContent: "center" },
   titulo: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1A1A2E",
-    textAlign: "center",
-    marginBottom: 12,
+    color: "#FFFFFF",
+    fontFamily: Platform.select({ ios: "Georgia", android: "serif", default: "serif" }),
   },
-  subtitulo: {
-    fontSize: 16,
-    color: "#3A3A3A",
-    textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 40,
+  descricao: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 18,
+    maxWidth: 210,
   },
   botao: {
-    backgroundColor: "#4A6FA5",
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    borderRadius: 12,
+    alignSelf: "center",
+    width: "68%",
+    maxWidth: 300,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingLeft: 28,
+    paddingRight: 7,
   },
   textoBotao: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "600",
+    color: "#5B4B9A",
+    fontSize: 14,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+  },
+  setaCirculo: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: CORES.coral,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
