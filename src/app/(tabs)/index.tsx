@@ -69,6 +69,15 @@ export default function Inicio() {
         <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
 
+      <TouchableOpacity style={[styles.cartaoLink, { marginTop: 12 }]} onPress={() => router.push("/diario")}>
+  <Ionicons name="book-outline" size={22} color={CORES.azul} />
+  <View style={{ flex: 1 }}>
+    <Text style={styles.tituloLink}>Diário</Text>
+    <Text style={styles.textoLink}>Escreve o que estás a sentir</Text>
+  </View>
+  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+</TouchableOpacity>
+
       <View style={styles.secaoExtra}>
         <Text style={styles.tituloExtra}>Porque fazer o rastreio?</Text>
         <Text style={styles.textoExtra}>
