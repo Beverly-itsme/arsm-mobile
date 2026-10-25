@@ -7,7 +7,7 @@ import { obterRespostasPHQ9, guardarRespostasGAD7 } from "../store/avaliacaoStor
 import { CORES } from "../constants/cores";
 import { IMAGENS_GAD7 } from "../constants/imagensQuestionario";
 
-const API_URL = "http://192.168.100.4:5000";
+const API_URL = "http://192.168.100.6:5000";
 
 const PERGUNTAS = [
   "Sentir-se nervoso(a), ansioso(a) ou muito tenso(a)",

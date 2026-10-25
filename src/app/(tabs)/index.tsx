@@ -1,170 +1,333 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Modal } from "react-native";
+import { useRouter, useFocusEffect } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CORES } from "../../constants/cores";
+import { CORES, FUNDO_GRADIENTE } from "../../constants/cores";
+import CaraHumor, { CORES_HUMOR, NOMES_HUMOR } from "../../components/CaraHumor";
+import TituloGradiente from "../../components/TituloGradiente";
+import { obterHumores, guardarHumor, dataLocal } from "../../store/humorStore";
 
 const INFO = [
-  { icon: "time-outline" as const, texto: "3-5 minutos" },
+  { icon: "time-outline" as const, texto: "3-5 min" },
   { icon: "list-outline" as const, texto: "16 perguntas" },
-  { icon: "shield-checkmark-outline" as const, texto: "100% anónimo" },
+  { icon: "shield-checkmark-outline" as const, texto: "Anónimo" },
 ];
+
+const ATALHOS = [
+  { titulo: "Respirar", sub: "Acalma com calma", icon: "leaf-outline" as const, cor: CORES.verde, rota: "/respirar" },
+  { titulo: "Diário", sub: "Escreve o que sentes", icon: "book-outline" as const, cor: CORES.lilas, rota: "/diario" },
+  { titulo: "Humor", sub: "Ver o teu gráfico", icon: "stats-chart-outline" as const, cor: CORES.pessego, rota: "/humor" },
+  { titulo: "Aprender", sub: "Sobre saúde mental", icon: "bulb-outline" as const, cor: CORES.azul, rota: "/educacao" },
+];
+
+function saudacao() {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia";
+  if (h < 19) return "Boa tarde";
+  return "Boa noite";
+}
 
 export default function Inicio() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [humorHoje, setHumorHoje] = useState<number | null>(null);
+  const [seletorAberto, setSeletorAberto] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      obterHumores().then((lista) => {
+        const hoje = lista.find((r) => r.data === dataLocal());
+        setHumorHoje(hoje ? hoje.nivel : null);
+      });
+    }, [])
+  );
+
+  async function registar(nivel: number) {
+    await guardarHumor(nivel);
+    setHumorHoje(nivel);
+    setSeletorAberto(false);
+  }
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: insets.bottom + 110 }}
-    >
-      <View style={styles.cabecalho}>
-        <Text style={styles.saudacao}>Olá</Text>
-        <Text style={styles.subSaudacao}>Como te sentes hoje?</Text>
-      </View>
-
-      <LinearGradient colors={[CORES.pessego, CORES.coral]} style={styles.cartaoTopo}>
-        <View style={styles.iconeCirculo}>
-          <Ionicons name="clipboard-outline" size={32} color="#FFFFFF" />
-        </View>
-
-        <Text style={styles.tituloTopo}>Rastreio de saúde mental</Text>
-        <Text style={styles.textoTopo}>
-          Um momento tranquilo para perceberes como tens estado em relação à
-          depressão e à ansiedade, de forma simples e privada.
-        </Text>
-
-        <TouchableOpacity style={styles.botao} onPress={() => router.push("/phq9")}>
-          <Text style={styles.textoBotao}>Iniciar avaliação</Text>
-          <Ionicons name="arrow-forward" size={18} color={CORES.coral} />
-        </TouchableOpacity>
-      </LinearGradient>
-
-      <View style={styles.linhaInfo}>
-        {INFO.map((item, i) => (
-          <View key={i} style={styles.itemInfo}>
-            <Ionicons name={item.icon} size={20} color={CORES.azul} />
-            <Text style={styles.textoInfo}>{item.texto}</Text>
+    <View style={styles.pagina}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 110,
+        }}
+      >
+        <View style={styles.cabecalho}>
+          <View style={{ flex: 1 }}>
+            <TituloGradiente style={styles.saudacao}>{saudacao()}</TituloGradiente>
+            <Text style={styles.subSaudacao}>Como te sentes hoje?</Text>
           </View>
-        ))}
-      </View>
 
-      <TouchableOpacity style={[styles.cartaoLink, { marginTop: 24 }]} onPress={() => router.push("/respirar")}>
-        <Ionicons name="leaf-outline" size={22} color={CORES.azul} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.tituloLink}>Respirar</Text>
-          <Text style={styles.textoLink}>Um exercício de respiração calma</Text>
+          <TouchableOpacity
+            style={styles.cantoHumor}
+            onPress={() => setSeletorAberto(true)}
+            activeOpacity={0.8}
+          >
+            {humorHoje !== null ? (
+              <CaraHumor nivel={humorHoje} size={52} />
+            ) : (
+              <View style={styles.cantoVazio}>
+                <Ionicons name="add" size={26} color="#8190D2" />
+              </View>
+            )}
+            <Text style={styles.legendaCanto}>
+              {humorHoje !== null ? NOMES_HUMOR[humorHoje - 1] : "Registar"}
+            </Text>
+          </TouchableOpacity>
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.cartaoLink, { marginTop: 12 }]} onPress={() => router.push("/humor")}>
-        <Ionicons name="happy-outline" size={22} color={CORES.azul} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.tituloLink}>Humor de hoje</Text>
-          <Text style={styles.textoLink}>Regista como te sentes</Text>
+        <LinearGradient colors={FUNDO_GRADIENTE} style={styles.cartaoRastreio}>
+          <Text style={styles.etiqueta}>RASTREIO</Text>
+          <Text style={styles.tituloRastreio}>Rastreio de saúde mental</Text>
+          <Text style={styles.textoRastreio}>
+            Um momento tranquilo para perceberes como tens estado em relação
+            à depressão e à ansiedade, de forma simples e privada.
+          </Text>
+
+          <View style={styles.chips}>
+            {INFO.map((item, i) => (
+              <View key={i} style={styles.chip}>
+                <Ionicons name={item.icon} size={14} color="#FFFFFF" />
+                <Text style={styles.textoChip}>{item.texto}</Text>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.botaoRastreio} onPress={() => router.push("/phq9")}>
+            <Text style={styles.textoBotaoRastreio}>INICIAR AVALIAÇÃO</Text>
+            <Ionicons name="arrow-forward" size={18} color="#5B4B9A" />
+          </TouchableOpacity>
+        </LinearGradient>
+
+        <View style={styles.grelha}>
+          {ATALHOS.map((a) => (
+            <TouchableOpacity
+              key={a.titulo}
+              style={styles.atalho}
+              onPress={() => router.push(a.rota as any)}
+            >
+              <View style={[styles.iconeAtalho, { backgroundColor: a.cor + "35" }]}>
+                <Ionicons name={a.icon} size={22} color={CORES.textoEscuro} />
+              </View>
+              <Text style={styles.tituloAtalho}>{a.titulo}</Text>
+              <Text style={styles.subAtalho}>{a.sub}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-      </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.cartaoLink, { marginTop: 12 }]} onPress={() => router.push("/diario")}>
-  <Ionicons name="book-outline" size={22} color={CORES.azul} />
-  <View style={{ flex: 1 }}>
-    <Text style={styles.tituloLink}>Diário</Text>
-    <Text style={styles.textoLink}>Escreve o que estás a sentir</Text>
-  </View>
-  <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-</TouchableOpacity>
+        <TouchableOpacity style={styles.cartaoAjuda} onPress={() => router.push("/apoio")}>
+          <Ionicons name="help-buoy-outline" size={24} color="#5B4B9A" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.tituloAjuda}>Precisas de ajuda agora?</Text>
+            <Text style={styles.textoAjuda}>Vê com quem podes falar</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+      </ScrollView>
 
-      <View style={styles.secaoExtra}>
-        <Text style={styles.tituloExtra}>Porque fazer o rastreio?</Text>
-        <Text style={styles.textoExtra}>
-          Reconhecer sinais precocemente é o primeiro passo para cuidares de
-          ti. Este rastreio não substitui uma avaliação profissional, mas pode
-          ajudar-te a perceber quando pedir apoio.
-        </Text>
-      </View>
-    </ScrollView>
+      <View pointerEvents="none" style={[styles.capaTopo, { height: insets.top }]} />
+
+      <Modal
+        visible={seletorAberto}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSeletorAberto(false)}
+      >
+        <TouchableOpacity
+          style={styles.fundoModal}
+          activeOpacity={1}
+          onPress={() => setSeletorAberto(false)}
+        >
+          <TouchableOpacity activeOpacity={1} style={styles.cartaoModal}>
+            <Text style={styles.tituloModal}>Como te sentes hoje?</Text>
+            <Text style={styles.subModal}>Escolhe a cara que mais se parece contigo.</Text>
+
+            <View style={styles.linhaCaras}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <TouchableOpacity key={n} style={styles.opcaoCara} onPress={() => registar(n)}>
+                  <View
+                    style={[
+                      styles.molduraCara,
+                      humorHoje === n && { borderColor: CORES_HUMOR[n - 1] },
+                    ]}
+                  >
+                    <CaraHumor nivel={n} size={42} ativa={humorHoje === null || humorHoje === n} />
+                  </View>
+                  <Text
+                    numberOfLines={1}
+                    style={[styles.rotuloCara, humorHoje === n && styles.rotuloCaraAtivo]}
+                  >
+                    {NOMES_HUMOR[n - 1]}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              onPress={() => {
+                setSeletorAberto(false);
+                router.push("/humor");
+              }}
+              hitSlop={8}
+            >
+              <Text style={styles.linkHumor}>Ver registos e gráfico</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FAFAF8" },
-  cabecalho: { paddingHorizontal: 20, marginBottom: 16 },
-  saudacao: { fontSize: 22, fontWeight: "bold", color: CORES.textoEscuro },
+  pagina: { flex: 1, backgroundColor: "#FAFAF8" },
+  capaTopo: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#FAFAF8",
+  },
+  cabecalho: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  saudacao: { fontSize: 28, fontWeight: "bold", color: CORES.textoEscuro },
   subSaudacao: { fontSize: 14, color: "#6B7280", marginTop: 2 },
-  cartaoTopo: {
+
+  cantoHumor: { alignItems: "center", width: 76 },
+  cantoVazio: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 2,
+    borderColor: "#8190D2",
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  legendaCanto: { fontSize: 11, color: "#6B7280", marginTop: 4, textAlign: "center" },
+
+  cartaoRastreio: {
     marginHorizontal: 20,
     borderRadius: 24,
-    padding: 28,
-    alignItems: "center",
+    padding: 24,
   },
-  iconeCirculo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "rgba(255,255,255,0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  tituloTopo: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: CORES.textoEscuro,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  textoTopo: {
-    fontSize: 14,
-    color: CORES.textoEscuro,
-    textAlign: "center",
-    lineHeight: 20,
-    opacity: 0.85,
-    marginBottom: 22,
-  },
-  botao: {
+  etiqueta: { fontSize: 11, letterSpacing: 2, color: "#FFFFFF", opacity: 0.85, fontWeight: "700" },
+  tituloRastreio: { fontSize: 22, fontWeight: "bold", color: "#FFFFFF", marginTop: 6 },
+  textoRastreio: { fontSize: 14, color: "#FFFFFF", lineHeight: 21, marginTop: 8 },
+  chips: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 16 },
+  chip: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+  },
+  textoChip: { fontSize: 12, color: "#FFFFFF", fontWeight: "600" },
+  botaoRastreio: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
     backgroundColor: "#FFFFFF",
     paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 30,
+    borderRadius: 28,
+    marginTop: 20,
   },
-  textoBotao: { color: CORES.coral, fontSize: 16, fontWeight: "700" },
-  linhaInfo: {
+  textoBotaoRastreio: { color: "#5B4B9A", fontSize: 13, fontWeight: "700", letterSpacing: 1.5 },
+
+  grelha: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 24,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     marginHorizontal: 20,
+    marginTop: 20,
   },
-  itemInfo: { alignItems: "center", gap: 6 },
-  textoInfo: { fontSize: 12, color: "#6B7280" },
-  cartaoLink: {
+  atalho: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#EEEEEE",
+    padding: 16,
+    marginBottom: 12,
+  },
+  iconeAtalho: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  tituloAtalho: { fontSize: 15, fontWeight: "700", color: CORES.textoEscuro },
+  subAtalho: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+
+  cartaoAjuda: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    marginHorizontal: 20,
+    marginTop: 4,
+    backgroundColor: CORES.lilas + "25",
+    borderRadius: 18,
     padding: 16,
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
-    marginHorizontal: 20,
   },
-  tituloLink: { fontSize: 15, fontWeight: "700", color: CORES.textoEscuro },
-  textoLink: { fontSize: 12, color: "#6B7280", marginTop: 2 },
-  secaoExtra: {
-    marginTop: 24,
-    marginHorizontal: 20,
-    padding: 20,
+  tituloAjuda: { fontSize: 15, fontWeight: "700", color: CORES.textoEscuro },
+  textoAjuda: { fontSize: 12, color: "#6B7280", marginTop: 2 },
+
+  fundoModal: {
+    flex: 1,
+    backgroundColor: "rgba(58,69,96,0.45)",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+  },
+  cartaoModal: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#EEEEEE",
+    borderRadius: 24,
+    padding: 18,
   },
-  tituloExtra: { fontSize: 15, fontWeight: "700", color: CORES.textoEscuro, marginBottom: 8 },
-  textoExtra: { fontSize: 13, color: "#6B7280", lineHeight: 19 },
+  tituloModal: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: CORES.textoEscuro,
+    textAlign: "center",
+  },
+  subModal: {
+    fontSize: 12,
+    color: "#6B7280",
+    textAlign: "center",
+    marginTop: 4,
+    marginBottom: 18,
+  },
+  linhaCaras: { flexDirection: "row", justifyContent: "space-between" },
+  opcaoCara: { flex: 1, alignItems: "center" },
+  molduraCara: {
+    padding: 3,
+    borderRadius: 28,
+    borderWidth: 3,
+    borderColor: "transparent",
+  },
+  rotuloCara: { fontSize: 10, color: "#6B7280", marginTop: 5, textAlign: "center" },
+  rotuloCaraAtivo: { color: CORES.textoEscuro, fontWeight: "700" },
+  linkHumor: {
+    fontSize: 12,
+    color: "#4A6FA5",
+    fontWeight: "700",
+    textDecorationLine: "underline",
+    textAlign: "center",
+    marginTop: 18,
+  },
 });

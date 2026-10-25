@@ -6,8 +6,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 import { CORES, FUNDO_GRADIENTE } from "../constants/cores";
+import TituloGradiente from "../components/TituloGradiente";
 
-const API_URL = "http://192.168.100.4:5000";
+const API_URL = "http://192.168.100.6:5000";
 const FAIXAS = ["13-17", "18-24", "25-34", "35-44", "45+"];
 
 export default function Idade() {
@@ -45,7 +46,7 @@ export default function Idade() {
     <LinearGradient colors={FUNDO_GRADIENTE} style={styles.gradiente}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
-          <Text style={styles.titulo}>Qual é a tua faixa etária?</Text>
+          <TituloGradiente style={styles.titulo}>Qual é a tua faixa etária?</TituloGradiente>
 
           {FAIXAS.map((faixa) => (
             <TouchableOpacity

@@ -20,6 +20,7 @@ import {
   apagarNota,
   limparNotas,
 } from "../store/diarioStore";
+import TituloGradiente from "../components/TituloGradiente";
 
 const MESES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -140,7 +141,7 @@ export default function Diario() {
             ) : null}
           </View>
 
-          <Text style={styles.titulo}>{editor.id ? "Editar nota" : "Nova nota"}</Text>
+          <TituloGradiente style={styles.titulo}>{editor.id ? "Editar nota" : "Nova nota"}</TituloGradiente>
 
           <TextInput
             multiline
@@ -197,7 +198,7 @@ export default function Diario() {
           <Ionicons name="arrow-back" size={24} color={CORES.textoEscuro} />
         </TouchableOpacity>
 
-        <Text style={styles.titulo}>Diário</Text>
+       <TituloGradiente style={styles.titulo}>Diário</TituloGradiente>
         <Text style={styles.subtitulo}>
           Um espaço só teu para escreveres o que estás a sentir. Podes escrever
           pouco ou muito, e não há certo nem errado.

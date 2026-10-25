@@ -1,15 +1,21 @@
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CORES, FUNDO_GRADIENTE } from "../constants/cores";
-
+import TituloGradiente from "../components/TituloGradiente";
 
 const PONTOS = [
   {
     icon: "lock-closed-outline" as const,
-    texto: "As tuas respostas são anónimas",
+    texto: "As tuas respostas ao rastreio são anónimas",
     cor: CORES.azul,
+  },
+  {
+    icon: "phone-portrait-outline" as const,
+    texto: "O humor e o diário ficam só neste telemóvel",
+    cor: CORES.lilas,
   },
   {
     icon: "chatbubbles-outline" as const,
@@ -25,13 +31,18 @@ const PONTOS = [
 
 export default function Termos() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <LinearGradient colors={FUNDO_GRADIENTE} style={styles.gradiente}>
-      <SafeAreaView style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.conteudo,
+          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 },
+        ]}
+      >
         <View style={styles.card}>
-          <Text style={styles.titulo}>Antes de começares</Text>
-
+          <TituloGradiente style={styles.titulo}>Antes de começares</TituloGradiente>
           {PONTOS.map((ponto, i) => (
             <View key={i} style={styles.linha}>
               <View style={[styles.iconeCirculo, { backgroundColor: ponto.cor + "22" }]}>
@@ -45,14 +56,14 @@ export default function Termos() {
             <Text style={styles.textoBotao}>Concordo e quero continuar</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </ScrollView>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   gradiente: { flex: 1 },
-  container: { flex: 1, justifyContent: "center", padding: 24 },
+  conteudo: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 24,
@@ -65,11 +76,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 28,
   },
-  linha: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+  linha: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   iconeCirculo: {
     width: 44,
     height: 44,
@@ -78,22 +85,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: 14,
   },
-  textoLinha: {
-    flex: 1,
-    fontSize: 15,
-    color: CORES.textoEscuro,
-    lineHeight: 21,
-  },
+  textoLinha: { flex: 1, fontSize: 15, color: CORES.textoEscuro, lineHeight: 21 },
   botao: {
-    backgroundColor: CORES.azul,
+    backgroundColor: "#4A6FA5",
     paddingVertical: 16,
     borderRadius: 30,
     marginTop: 12,
   },
-  textoBotao: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
-    textAlign: "center",
-  },
+  textoBotao: { color: "#FFFFFF", fontSize: 16, fontWeight: "700", textAlign: "center" },
 });

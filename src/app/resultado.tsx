@@ -3,6 +3,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { CORES } from "../constants/cores";
+import TituloGradiente from "../components/TituloGradiente";
 
 const CORES_RISCO: Record<string, string> = {
   "mínimo": "#4CAF7D",
@@ -35,7 +36,7 @@ export default function Resultado() {
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
       <ScrollView contentContainerStyle={styles.conteudo}>
-        <Text style={styles.titulo}>O teu resultado</Text>
+        <TituloGradiente style={styles.titulo}>O teu resultado</TituloGradiente>
 
         {riscoUrgente && (
           <View style={styles.avisoUrgente}>
@@ -49,6 +50,9 @@ export default function Resultado() {
               Por favor, fala com alguém de confiança ou procura apoio
               profissional o mais rápido possível.
             </Text>
+            <TouchableOpacity style={styles.botaoApoioUrgente} onPress={() => router.push("/apoio")}>
+             <Text style={styles.textoBotaoApoioUrgente}>Ver onde pedir apoio</Text>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -81,6 +85,11 @@ export default function Resultado() {
             </View>
           ))}
         </View>
+
+        <TouchableOpacity style={styles.linkApoio} onPress={() => router.push("/apoio")}>
+  <Ionicons name="help-buoy-outline" size={18} color="#5B4B9A" />
+  <Text style={styles.textoLinkApoio}>Ver onde pedir apoio</Text>
+</TouchableOpacity>
 
         <View style={styles.avisoLegal}>
           <Ionicons name="information-circle-outline" size={16} color="#9CA3AF" />
@@ -160,4 +169,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
+
+  botaoApoioUrgente: {
+  alignSelf: "flex-start",
+  backgroundColor: "#8190D2",
+  paddingVertical: 10,
+  paddingHorizontal: 18,
+  borderRadius: 22,
+  marginTop: 12,
+},
+textoBotaoApoioUrgente: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
+linkApoio: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+  paddingVertical: 12,
+  marginBottom: 8,
+},
+textoLinkApoio: { color: "#5B4B9A", fontSize: 14, fontWeight: "700", textDecorationLine: "underline" },
 });

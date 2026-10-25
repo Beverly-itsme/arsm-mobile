@@ -13,6 +13,7 @@ import {
   limparHumores,
   preencherDemo,
 } from "../store/humorStore";
+import TituloGradiente from "../components/TituloGradiente";
 
 const ALTURA_GRAFICO = 110;
 const LETRAS = ["D", "S", "T", "Q", "Q", "S", "S"];
@@ -110,9 +111,9 @@ export default function Humor() {
         <Ionicons name="arrow-back" size={24} color={CORES.textoEscuro} />
       </TouchableOpacity>
 
-      <Text style={styles.titulo} onLongPress={demo}>
-        Como te sentes hoje?
-      </Text>
+      <TouchableOpacity activeOpacity={1} onLongPress={demo}>
+  <TituloGradiente style={styles.titulo}>Como te sentes hoje?</TituloGradiente>
+</TouchableOpacity>
       <Text style={styles.data}>{dataTexto}</Text>
 
       <View style={styles.linhaCaras}>

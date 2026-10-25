@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CORES } from "../../../constants/cores";
 import { ARTIGOS } from "../../../constants/artigos";
+import TituloGradiente from "../../../components/TituloGradiente";
 
 export default function Educacao() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function Educacao() {
       style={[styles.container, { paddingTop: insets.top + 12 }]}
       contentContainerStyle={styles.conteudo}
     >
-      <Text style={styles.titulo}>Saúde Mental</Text>
+      <TituloGradiente style={styles.titulo}>Saúde Mental</TituloGradiente>
       <Text style={styles.subtitulo}>
         Informação simples para te ajudar a entender melhor
       </Text>

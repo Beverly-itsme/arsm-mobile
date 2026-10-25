@@ -5,8 +5,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CORES } from "../../constants/cores";
+import TituloGradiente from "../../components/TituloGradiente";
 
-const API_URL = "http://192.168.100.4:5000";
+const API_URL = "http://192.168.100.6:5000";
 
 const CORES_RISCO: Record<string, string> = {
   "mínimo": "#4CAF7D",
@@ -94,7 +95,7 @@ export default function Historico() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
-      <Text style={styles.titulo}>O teu histórico</Text>
+      <TituloGradiente style={styles.titulo}>O teu histórico</TituloGradiente>
       <FlatList
         data={avaliacoes}
         keyExtractor={(item) => String(item.id)}

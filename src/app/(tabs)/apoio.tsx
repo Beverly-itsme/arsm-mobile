@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { CORES } from "../../constants/cores";
 import { CONTACTOS } from "../../constants/contactos";
+import TituloGradiente from "../../components/TituloGradiente";
 
 const COM_QUEM_FALAR = [
   "Uma pessoa de confiança: família, amigo, colega, professor ou líder religioso.",
@@ -27,7 +28,7 @@ export default function Apoio() {
           { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 110 },
         ]}
       >
-        <Text style={styles.titulo}>Se precisas de ajuda</Text>
+        <TituloGradiente style={styles.titulo}>Se precisas de ajuda</TituloGradiente>
 
         <View style={styles.cartaoDestaque}>
           <Ionicons name="heart-outline" size={26} color="#FFFFFF" />
